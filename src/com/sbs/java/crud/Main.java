@@ -29,12 +29,13 @@ public class Main {
 			if (command.equals("article write")) {
 				int id = lastArticleId + 1;
 				lastArticleId = id;
+				String regDate = Util.getNowDateStr();
 				System.out.printf("제목: ");
 				String title = sc.nextLine();
 				System.out.printf("내용: ");
 				String body = sc.nextLine();
 
-				Article article = new Article(id, title, body);
+				Article article = new Article(id, regDate, title, body);
 				articles.add(article);
 
 				System.out.printf("%d번 글이 생성 되었습니다.\n", id);
@@ -46,11 +47,11 @@ public class Main {
 					System.out.println("게시물이 없습니다");
 					continue;
 				}
-				System.out.println("번호  /  제목");
+				System.out.println("번호  /  제목/  조회");
 				for (int i = articles.size() - 1; i >= 0; i--) {
 					Article article = articles.get(i);
 
-					System.out.printf("%d     /    %s\n", article.id, article.title);
+					System.out.printf("%d     /    %s/    %d\n", article.id, article.title, article.hit);
 				}
 
 			} else if (command.startsWith("article detail ")) {
@@ -73,10 +74,43 @@ public class Main {
 					continue;
 				}
 
+				foundArticle.increaseHit();
+
 				System.out.printf("번호 : %d\n", foundArticle.id);
-				System.out.printf("날짜 : 2021-05-02 16:22:22\n");
+				System.out.printf("날짜 : %s\n", foundArticle.regDate);
 				System.out.printf("제목 : %s\n", foundArticle.title);
 				System.out.printf("내용 : %s\n", foundArticle.body);
+				System.out.printf("조회수 : %d\n", foundArticle.hit);
+
+			} else if (command.startsWith("article modify ")) {
+				String[] commandBits = command.split(" ");
+				int id = Integer.parseInt(commandBits[2]);
+
+				Article foundArticle = null;
+
+				for (int i = 0; i < articles.size(); i++) {
+					Article article = articles.get(i);
+
+					if (article.id == id) {
+						foundArticle = article;
+						break;
+					}
+				}
+
+				if (foundArticle == null) {
+					System.out.printf("%d번 게시물은 존재하지 않습니다.\n", id);
+					continue;
+				}
+
+				System.out.printf("새 제목 : ");
+				String title = sc.nextLine();
+				System.out.printf("새 내용 : ");
+				String body = sc.nextLine();
+
+				foundArticle.title = title;
+				foundArticle.body = body;
+
+				System.out.printf("%d번 게시물이 수정되었습니다.\n", id);
 
 			} else if (command.startsWith("article delete ")) {
 				String[] commandBits = command.split(" ");
@@ -116,13 +150,21 @@ public class Main {
 class Article {
 
 	int id;
+	String regDate;
 	String title;
 	String body;
+	int hit;
 
-	public Article(int id, String title, String body) {
+	public Article(int id, String regDate, String title, String body) {
 		this.id = id;
+		this.regDate = regDate;
 		this.title = title;
 		this.body = body;
+		this.hit = hit;
+	}
+
+	public void increaseHit() {
+		hit++;
 	}
 
 }
